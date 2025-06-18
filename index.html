@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamarka - Tu Charcutería y Gestión</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header id="main-header">
+        <div class="container header-content">
+            <h1 class="logo">Gamarka</h1>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="#upload-payment-section" data-section="upload-payment">Subir Pago</a></li>
+
+                    <li class="admin-only"><a href="#products-management-section" data-section="product-management">Productos</a></li>
+                    <li class="admin-only"><a href="#clients-management-section" data-section="client-management">Clientes</a></li>
+                    <li class="admin-only"><a href="#invoice-section" data-section="invoice">Facturar</a></li>
+                    <li class="admin-only"><a href="#manage-users-section" data-section="manage-users">Gestión Usuarios</a></li>
+                    <li class="admin-only"><a href="#options-section" data-section="options">Opciones Admin</a></li>
+                </ul>
+            </nav>
+            <div class="auth-controls">
+                <span id="welcome-message" style="display: none;">¡Hola, <span id="logged-in-user"></span>!</span>
+                <button id="auth-button" class="btn btn-secondary">Acceder</button>
+                <button id="logout-button" class="btn btn-secondary" style="display: none;"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="auth-modal" class="modal">
+            <div class="modal-content auth-content">
+                <span class="close-button">&times;</span>
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-form="login">Iniciar Sesión</button>
+                    <button class="tab-button" data-form="register">Registrarse</button>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <h3>Iniciar Sesión</h3>
+                    <div class="form-group">
+                        <label for="login-email">Email:</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Contraseña:</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <p id="login-error" class="error-message"></p>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+
+                <form id="register-form" class="auth-form" style="display: none;">
+                    <h3>Registrarse</h3>
+                    <div class="form-group">
+                        <label for="register-name">Nombre:</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Contraseña:</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <p id="register-error" class="error-message"></p>
+                    <button type="submit" class="btn btn-primary">Registrarme</button>
+                </form>
+            </div>
+        </div>
+
+        <section id="products-management-section" class="content-section admin-only" style="display: none;">
+            <h2>Gestión de Productos</h2>
+            <p class="section-description">Añade, edita y elimina productos de tu catálogo.</p>
+
+            <div class="table-actions">
+                <input type="text" id="product-search-management-input" placeholder="Buscar producto por ID, nombre o descripción...">
+                <button id="add-product-btn" class="btn btn-primary btn-add-new"><i class="fas fa-plus"></i> Añadir Producto</button>
+                <div class="pagination-controls">
+                    <label for="products-per-page-select">Productos por página:</label>
+                    <select id="products-per-page-select">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                    </select>
+                    <button id="prev-page-btn" class="btn btn-secondary">Anterior</button>
+                    <span id="current-page-span">1 / 1</span>
+                    <button id="next-page-btn" class="btn btn-secondary">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-management-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="add-product-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Añadir Nuevo Producto</h2>
+                <form id="create-product-form" class="basic-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="new-product-name">Nombre del Producto:</label>
+                        <input type="text" id="new-product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-product-description">Descripción:</label>
+                        <textarea id="new-product-description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-product-price">Precio:</label>
+                        <input type="number" id="new-product-price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-product-image">Imagen del Producto:</label>
+                        <input type="file" id="new-product-image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Crear Producto</button>
+                    <p id="add-product-status" class="success-message" style="display: none;"></p>
+                </form>
+            </div>
+        </div>
+
+        <div id="edit-product-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Editar Producto</h2>
+                <form id="edit-product-form" class="basic-form" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-product-id">
+                    <div class="form-group">
+                        <label for="edit-product-name">Nombre del Producto:</label>
+                        <input type="text" id="edit-product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-description">Descripción:</label>
+                        <textarea id="edit-product-description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-price">Precio:</label>
+                        <input type="number" id="edit-product-price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-image">Cambiar Imagen (opcional):</label>
+                        <input type="file" id="edit-product-image" accept="image/*">
+                        <p style="margin-top: 10px;">Imagen actual: <span id="current-product-image-name"></span></p>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                    <p id="edit-product-status" class="success-message" style="display: none;"></p>
+                </form>
+            </div>
+        </div>
+
+
+        <section id="clients-management-section" class="content-section admin-only" style="display: none;">
+            <h2>Gestión de Clientes</h2>
+            <p class="section-description">Visualiza, busca, edita y elimina información de los clientes.</p>
+
+            <div class="table-actions">
+                <input type="text" id="client-search-management-input" placeholder="Buscar cliente por ID, nombre o email...">
+                <button id="add-new-client-btn" class="btn btn-primary btn-add-new"><i class="fas fa-user-plus"></i> Añadir Cliente</button>
+                <div class="pagination-controls">
+                    <label for="clients-per-page-select">Clientes por página:</label>
+                    <select id="clients-per-page-select">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                    </select>
+                    <button id="prev-client-page-btn" class="btn btn-secondary">Anterior</button>
+                    <span id="current-client-page-span">1 / 1</span>
+                    <button id="next-client-page-btn" class="btn btn-secondary">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="add-client-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Añadir Nuevo Cliente</h2>
+                <form id="add-client-form" class="basic-form">
+                    <div class="form-group">
+                        <label for="new-client-name">Nombre:</label>
+                        <input type="text" id="new-client-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-client-email">Email:</label>
+                        <input type="email" id="new-client-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-client-phone">Teléfono:</label>
+                        <input type="tel" id="new-client-phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-client-address">Dirección:</label>
+                        <input type="text" id="new-client-address">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Añadir Cliente</button>
+                    <p id="add-client-status" class="success-message" style="display: none;"></p>
+                </form>
+            </div>
+        </div>
+
+        <section id="invoice-section" class="content-section admin-only" style="display: none;">
+            <h2>Crear Factura</h2>
+            <p class="section-description">Genera facturas para tus clientes de manera rápida y sencilla.</p>
+
+            <div class="invoice-generator-container">
+                <h3>Datos del Cliente</h3>
+                <div class="form-group">
+                    <label for="client-id-invoice-input">ID Cliente:</label>
+                    <input type="text" id="client-id-invoice-input" placeholder="Buscar por ID de Cliente">
+                    <button id="search-client-by-id-btn" class="btn btn-secondary">Buscar</button>
+                </div>
+                <div id="selected-client-info" class="client-data-form">
+                    <input type="hidden" id="client-id-hidden"> <div class="form-group">
+                        <label for="client-name-invoice-input">Nombre:</label>
+                        <input type="text" id="client-name-invoice-input" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-email-invoice-input">Email:</label>
+                        <input type="email" id="client-email-invoice-input" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-phone-invoice-input">Teléfono:</label>
+                        <input type="tel" id="client-phone-invoice-input" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-address-invoice-input">Dirección:</label>
+                        <input type="text" id="client-address-invoice-input" readonly>
+                    </div>
+                </div>
+                <p id="client-invoice-status" class="error-message" style="display: none;"></p>
+
+                <h3>Productos de la Factura</h3>
+                <div class="form-group">
+                    <label for="product-id-invoice-input">ID Producto:</label>
+                    <input type="text" id="product-id-invoice-input" placeholder="Buscar por ID de Producto">
+                    <button id="search-product-by-id-btn" class="btn btn-secondary">Buscar</button>
+                </div>
+                <div id="selected-product-for-invoice-info" style="display:none; margin-bottom: 15px;">
+                    <span id="product-name-for-invoice"></span> - $<span id="product-price-for-invoice"></span>
+                    <input type="number" id="product-qty-for-invoice" min="1" value="1" style="width: 80px; margin-left: 10px;">
+                    <button id="add-selected-product-to-invoice-btn" class="btn btn-primary" style="margin-left: 10px;">Añadir</button>
+                </div>
+                <p id="product-invoice-status" class="error-message" style="display: none;"></p>
+
+                <div class="table-responsive">
+                    <table class="data-table invoice-products-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-products-table-body">
+                            </tbody>
+                    </table>
+                </div>
+                <p class="invoice-total">Total Factura: <span id="invoice-total">$0.00</span></p>
+
+                <button id="generate-invoice-btn" class="btn btn-primary"><i class="fas fa-file-invoice"></i> Generar Factura</button>
+                <p id="invoice-generation-status" class="success-message" style="display: none;"></p>
+            </div>
+        </section>
+
+        <section id="upload-payment-section" class="content-section" style="display: none;">
+            <h2>Subir Comprobante de Pago</h2>
+            <p class="section-description">Adjunta tu comprobante de pago para verificar un pedido.</p>
+            <form id="payment-form" class="basic-form">
+                <div class="form-group">
+                    <label for="payment-file">Comprobante (Imagen o PDF):</label>
+                    <input type="file" id="payment-file" accept="image/*,.pdf" required class="input-file">
+                </div>
+                <div class="form-group">
+                    <label for="payment-description">Descripción / Número de Referencia:</label>
+                    <textarea id="payment-description" rows="5" placeholder="Escribe aquí cualquier detalle relevante o número de referencia de tu pago." required class="textarea-field"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Subir Comprobante</button>
+                <p id="payment-upload-status" class="success-message" style="display: none;"></p>
+            </form>
+        </section>
+
+        <section id="manage-users-section" class="content-section admin-only" style="display: none;">
+            <h2>Gestión de Usuarios y Roles</h2>
+            <p class="section-description">Aquí puedes ver todos los usuarios registrados y modificar sus roles.</p>
+            <div class="table-filters">
+                <button id="view-all-users-btn" class="btn btn-secondary"><i class="fas fa-users"></i> Ver Todos los Usuarios</button>
+                <button id="view-admins-btn" class="btn btn-secondary"><i class="fas fa-user-shield"></i> Ver Solo Administradores</button>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol / Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-management-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="options-section" class="content-section admin-only" style="display: none;">
+            <h2>Opciones de Administración</h2>
+            <p class="section-description">Aquí puedes gestionar aspectos clave de tu aplicación.</p>
+
+            <div class="admin-options-grid">
+                <div class="option-card">
+                    <h3>Gestión de Productos</h3>
+                    <p>Añade, edita o elimina productos del catálogo.</p>
+                    <button id="manage-products-card-btn" class="btn btn-primary"><i class="fas fa-boxes"></i> Gestionar Productos</button>
+                </div>
+                <div class="option-card">
+                    <h3>Gestión de Clientes</h3>
+                    <p>Registra, visualiza y edita información de clientes.</p>
+                    <button id="manage-clients-card-btn" class="btn btn-primary"><i class="fas fa-users"></i> Gestionar Clientes</button>
+                </div>
+                <div class="option-card">
+                    <h3>Crear Factura</h3>
+                    <p>Genera facturas para tus clientes.</p>
+                    <button id="create-invoice-card-btn" class="btn btn-primary"><i class="fas fa-file-invoice"></i> Generar Factura</button>
+                </div>
+                <div class="option-card">
+                    <h3>Gestión de Usuarios</h3>
+                    <p>Asigna o revoca el rol de administrador a usuarios existentes.</p>
+                    <button id="manage-users-card-btn" class="btn btn-primary"><i class="fas fa-users-cog"></i> Gestionar Roles de Usuario</button>
+                </div>
+                <div class="option-card">
+                    <h3>Subir Comprobante</h3>
+                    <p>Sube comprobantes de pago para verificación.</p>
+                    <button id="upload-payment-card-btn" class="btn btn-primary"><i class="fas fa-upload"></i> Subir Pago</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Gamarka. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
